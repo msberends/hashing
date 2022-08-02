@@ -17,21 +17,20 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      p("1. Fill in the salt, a institute-specific secret."),
-      textInput("salt", "Salt to use for hashing:", width = "100%"),
+      textInput("salt", "1. Fill in the 'salt', an institute-specific secret:", width = "100%"),
       hr(style = "border-top: 1px solid black;"),
       
-      p("2. Give the values that must be hashed, using:"),
+      radioButtons("datatype", "2. Give the values that must be hashed, using:",
+                   choices = c("An Excel file" = "xlsx",
+                               "A CSV file" = "csv",
+                               "Values from clipboard" = "clip"),
+                   selected = NULL),
       
-      fileInput("excel", "2a. An Excel file:", multiple = FALSE, accept = ".xlsx"),
-      textInput("range", "Excel Range (such as 'Sheet1$A:A'):"),
+      uiOutput("upload"),
+      hr(style = "border-top: 1px solid black;"),
       
-      fileInput("csv", "2b. An Excel file:", multiple = FALSE, accept = ".csv"),
-      textInput("delim", "Delimiter (comma, semicolon, tab):", value = ","),
-      
-      textAreaInput("values", "2c. Pasted values from clipboard:", height = "150px"),
-      hr(style = "border-top: 1px solid grey;"),
-      
+      p(("3. Download results:")),
+      uiOutput("downloadbtn"),
       
       hr(style = "border-top: 2px solid black;"),
       p(strong("DATA WILL NOT BE STORED")),
@@ -41,8 +40,6 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      uiOutput("downloadbtn"),
-      hr(),
       h3("Table output"),
       DTOutput("tableOut"),
       hr(),
@@ -54,6 +51,22 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  
+  output$upload <- renderUI({
+    if (input$datatype == "xlsx") {
+      tagList(
+        fileInput("excel", "Select Excel file:", multiple = FALSE, accept = ".xlsx"),
+        textInput("range", "Excel Range (such as 'Sheet1$A:A'):")
+      )
+    } else if (input$datatype == "csv") {
+      tagList(
+        fileInput("csv", "Select CSV file:", multiple = FALSE, accept = ".csv"),
+        radioButtons("delim", "Delimiter:", choices = c(",", ";", ".", "\t"), selected = ",")
+      )
+    } else if (input$datatype == "clip") {
+      textAreaInput("values", "Paste values here:", height = "250px")
+    }
+  })
   
   output$tableOut <- renderDT({
     values <- strsplit(input$values, "\n", fixed = TRUE)[[1]]
@@ -94,8 +107,9 @@ server <- function(input, output) {
   
   output$downloadbtn <- renderUI({
     tagList(
-      actionButton("download_xlsx", "Download result as Excel file"),
-      actionButton("download_csv", "Download result as CSV file")
+      actionButton("download_xlsx", "As Excel file"),
+      actionButton("download_csv", "As CSV file"),
+      actionButton("download_clip", "Copy to clipboard")
     )
   })
 }
