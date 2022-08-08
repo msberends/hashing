@@ -44,7 +44,7 @@ ui <- fluidPage(
   
   p(HTML("Read more here: <a href='https://github.com/msberends/hashing/blob/main/README.md'>https://github.com/msberends/hashing</a>")),
   p(HTML("<strong>Author:</strong> Dr. Matthijs Berends<br><strong>Copyright:</strong> this is free and open-source software, licensed under GNU GPL-2.0<br><strong>Source:</strong> <a href='https://github.com/msberends/hashing/blob/main/app.R'>https://github.com/msberends/hashing/blob/main/app.R</a>")),
-  p("Supported file types: MS Excel, SAS, SPSS, Stata, flat files (CSV, TSV, TXT)"),
+  p("Supported file types: MS Excel, SAS, SPSS, Stata, flat files (CSV, TSV, TXT), and clipboard data"),
 )
 
 server <- function(input, output) {
@@ -58,7 +58,7 @@ server <- function(input, output) {
       tagList(
         radioButtons("datatype", "2. Give the values that must be hashed, using:",
                      choices = c("An Excel file" = "xlsx",
-                                 "A CSV/TSV/TXT file" = "csv",
+                                 "A CSV / TSV / TXT file" = "csv",
                                  "An SAS file" = "sas",
                                  "An SPSS file" = "spss",
                                  "A Stata file" = "stata",
@@ -120,7 +120,7 @@ server <- function(input, output) {
     } else if (input$datatype == "clip") {
       tagList(
         selectInput("pasted_delim", "Select the delimiter (if pasting column data):",
-                    choices = c("Nothing" = "",
+                    choices = c("Nothing" = "nothing",
                                 "Comma: ," = ",",
                                 "semicolon: ;" = ";",
                                 "tab: \\t" = "\t"),
@@ -165,14 +165,15 @@ server <- function(input, output) {
       
       # Clipboard
     } else if (!is.null(input$pasted_values) && trimws(input$pasted_values) != "") {
-      if (input$pasted_delim == "") {
-        datafile <<- data.frame(x = input$pasted_values, stringsAsFactors = FALSE)
+      values <- strsplit(input$pasted_values, "\n", fixed = TRUE)[[1]]
+      if (input$pasted_delim == "nothing") {
+        datafile <<- data.frame(x = values,
+                                stringsAsFactors = FALSE)
         return(tagList(
-          checkboxInput("keep_originals", "Keep original columns", value = TRUE),
           actionButton("start_hash", "Click to Start Data Hashing")
         ))
       } else {
-        datafile <<- read.delim(input$pasted_values, sep = input$pasted_delim)
+        datafile <<- read.delim(text = values, sep = input$pasted_delim, stringsAsFactors = FALSE)
       }
     } else {
       datafile <<- NULL
@@ -202,6 +203,10 @@ server <- function(input, output) {
     df <- get_data()
     cols <- isolate(input$cols)
     keep_cols <- isolate(input$keep_originals)
+    if (input$pasted_delim == "nothing") {
+      cols <- colnames(df)
+      keep_cols <- FALSE
+    }
     for (col in cols) {
       .new_hash_var <- as.character(openssl::sha256(df[, col, drop = TRUE], key = input$key))
       pos <- which(colnames(df) == col)
@@ -219,7 +224,7 @@ server <- function(input, output) {
                        fix.empty.names = FALSE)
       colnames(df)[colnames(df) == ".new_hash_var"] <- paste0(col, "_hash")
     }
-    if (keep_cols == FALSE) {
+    if (isFALSE(keep_cols)) {
       df <- df[, colnames(df)[!colnames(df) %in% cols], drop = FALSE]
     }
     data_encrypt <<- df

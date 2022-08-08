@@ -5,9 +5,10 @@ account: berends
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6754728
-bundleId: 6179983
+bundleId: 6180931
 url: https://berends.shinyapps.io/hashing/
-when: 1659972701.65168
-lastSyncTime: 1659972701.65169
+when: 1659991248.10812
+lastSyncTime: 1659991248.10813
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: README.md|screen1.png|screen2.png|screen3.png|screen4.png|screen5.png|test.csv|test.xlsx

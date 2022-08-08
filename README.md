@@ -1,6 +1,6 @@
 # `hashing`
 
-This is a simple [Shiny app](https://shiny.rstudio.com) to encrypt data for safe, anonymised data transfer. It supports MS Excel files, SAS files, SPSS files, Stata files, and flat files (CSV, TSV, TXT).
+This is a simple [Shiny app](https://shiny.rstudio.com) to encrypt data for safe, anonymised data transfer. It supports MS Excel files, SAS files, SPSS files, Stata files, flat files (CSV, TSV, TXT), and clipboard data.
 
 ## About the hashing
 
