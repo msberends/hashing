@@ -19,6 +19,6 @@ This is a simple [Shiny app](https://shiny.rstudio.com) to encrypt laboratory da
 ## Run this app in the cloud
 
 1.  Open the URL [https://berends.shinyapps.io/hashing/](http://berends.shinyapps.io/clinicalmicrobiology/)
-2.  Use the user interface (see below). Uploaded files will not be stored.
+2.  Use the user interface (see below). **Uploaded files will not remain stored and will be deleted immediately after import.**
 
 ## User Interface
